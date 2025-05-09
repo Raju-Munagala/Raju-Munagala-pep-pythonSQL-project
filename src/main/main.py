@@ -48,13 +48,27 @@ def main():
 
 # This function will load the users.csv file into the users table, discarding any records with incomplete data
 def load_and_clean_users(file_path):
-
+    file = open(file_path,"r")
+    next(file)
+    for line in file:
+        row = line.strip().split(",")
+        if (len(row)!=2) or ("" in row):
+            continue
+        cursor.execute("INSERT INTO users(firstName,lastName) VALUES(?,?)",(row[0],row[1]))
+    file.close()
     print("TODO: load_users")
 
 
 # This function will load the callLogs.csv file into the callLogs table, discarding any records with incomplete data
 def load_and_clean_call_logs(file_path):
-
+    file = open(file_path,"r")
+    next(file)
+    for line in file:
+        row = line.strip().split(",")
+        if (len(row)!=5) or ("" in row):
+            continue
+        cursor.execute("INSERT INTO callLogs(phoneNumber,startTime,endTime,direction,userId) VALUES(?,?,?,?,?)",(row[0],int(row[1]),int(row[2]),row[3],int(row[4])))
+    file.close()
     print("TODO: load_call_logs")
 
 
@@ -62,6 +76,12 @@ def load_and_clean_call_logs(file_path):
 # You must save records consisting of each userId, avgDuration, and numCalls
 # example: 1,105.0,4 - where 1 is the userId, 105.0 is the avgDuration, and 4 is the numCalls.
 def write_user_analytics(csv_file_path):
+    result = cursor.execute("SELECT userId,avg(endTime-startTime),count(userId) FROM callLogs GROUP BY userId")
+    result_arr = result.fetchall()
+    file = open(csv_file_path,"a")
+    for line in result_arr:
+        file.write(f"\n{line[0]},{line[1]},{line[2]}")
+    file.close()
 
     print("TODO: write_user_analytics")
 
@@ -69,6 +89,12 @@ def write_user_analytics(csv_file_path):
 # This function will write the callLogs ordered by userId, then start time.
 # Then, write the ordered callLogs to orderedCalls.csv
 def write_ordered_calls(csv_file_path):
+    result = cursor.execute("SELECT * FROM callLogs ORDER BY userId,startTime")
+    result_arr = result.fetchall()
+    file = open(csv_file_path,"a")
+    for line in result_arr:
+        file.write(f"\n{line[0]},{line[1]},{line[2]},{line[3]},{line[4]},{line[5]}")
+    file.close()
 
     print("TODO: write_ordered_calls")
 
